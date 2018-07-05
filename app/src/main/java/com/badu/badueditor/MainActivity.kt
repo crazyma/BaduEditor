@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         if(resultCode == Activity.RESULT_OK){
             try {
 
-                linearLayout.addImageFromUri(data!!.data)
+                linearLayout.addImageFromGalleryUri(data!!.data)
 
             } catch (e: Exception) {
                 e.printStackTrace()
