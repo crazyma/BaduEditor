@@ -13,7 +13,7 @@ class ImageLayout @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     interface OnDeleteButtonClickListener{
-        fun onDeleteButtonClicked(imageLayout: ImageLayout, index: Int)
+        fun onDeleteButtonClicked(imageLayout: ImageLayout)
     }
 
     var onDeleteButtonClickListener: OnDeleteButtonClickListener? = null
@@ -29,7 +29,7 @@ class ImageLayout @JvmOverloads constructor(
 
     private fun setupDeleteButton(){
         deleteImageView.setOnClickListener {
-            onDeleteButtonClickListener?.onDeleteButtonClicked(this@ImageLayout, this@ImageLayout.id)
+            onDeleteButtonClickListener?.onDeleteButtonClicked(this@ImageLayout)
         }
     }
 

@@ -22,13 +22,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         button1.setOnClickListener {
+            linearLayout.getOperatingCursorIndex()
             loadImageFromGallery()
         }
 
         button2.setOnClickListener {
             val childCount = linearLayout.childCount
-            linearLayout.addImage("http://img3.wikia.nocookie.net/__cb20131025223058/fantendo/images/2/25/Mario_Artwork_-_Super_Mario_3D_World.png", childCount)
-            linearLayout.addImage("https://www.cool3c.com/files/contentparty/abvjiRP.jpg", childCount + 1)
+            linearLayout.addImageOld("http://img3.wikia.nocookie.net/__cb20131025223058/fantendo/images/2/25/Mario_Artwork_-_Super_Mario_3D_World.png", childCount)
+            linearLayout.addImageOld("https://www.cool3c.com/files/contentparty/abvjiRP.jpg", childCount + 1)
         }
 
     }
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         if(resultCode == Activity.RESULT_OK){
             try {
 
-                linearLayout.addImage(data!!.data, linearLayout.childCount)
+                linearLayout.addImage(data!!.data)
 
             } catch (e: Exception) {
                 e.printStackTrace()

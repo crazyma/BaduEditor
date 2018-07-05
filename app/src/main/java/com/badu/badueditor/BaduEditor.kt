@@ -15,6 +15,7 @@ import com.bumptech.glide.request.target.ViewTarget
 import com.bumptech.glide.request.transition.Transition
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
+import android.view.View
 import kotlinx.android.synthetic.main.layout_content.view.*
 
 
@@ -22,9 +23,20 @@ class BaduEditor @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr), ImageLayout.OnDeleteButtonClickListener {
+) : LinearLayout(context, attrs, defStyleAttr),
+        View.OnFocusChangeListener,
+        ImageLayout.OnDeleteButtonClickListener {
 
+    companion object {
+        const val INSERT_STATE_START = 0x01
+        const val INSERT_STATE_MIDDLE = 0x02
+        const val INSERT_STATE_END = 0x03
+    }
+
+    private var insertState = INSERT_STATE_START
     private val margin = resources.getDimensionPixelSize(R.dimen.margin_normal)
+    private var operatingEditText: EditText? = null
+    private var operatingCorsorIndex = 0
 
     init {
         orientation = LinearLayout.VERTICAL
@@ -32,14 +44,101 @@ class BaduEditor @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        setupInitEditText()
+        insertEditText()
     }
 
-    override fun onDeleteButtonClicked(imageLayout: ImageLayout, index: Int) {
+    override fun onFocusChange(v: View?, hasFocus: Boolean) {
+        if (v != null && v is EditText && hasFocus) {
+            operatingEditText = v
+        }
+    }
+
+    override fun onDeleteButtonClicked(imageLayout: ImageLayout) {
         linearLayout.removeView(imageLayout)
     }
 
+    fun getOperatingCursorIndex() {
+        operatingEditText?.run {
+            operatingCorsorIndex = selectionStart
+            insertState = when (selectionStart) {
+                length() -> {
+                    INSERT_STATE_END
+                }
+
+                0 -> {
+                    INSERT_STATE_START
+                }
+
+                else -> {
+                    INSERT_STATE_MIDDLE
+                }
+            }
+        }
+    }
+
     fun addImage(arg: Any, childIndex: Int) {
+        if (arg !is String && arg !is Uri) {
+            throw RuntimeException("Not Valid param for image downloading")
+        }
+
+        when (insertState) {
+
+            INSERT_STATE_START -> {
+                val imageLayout = insertImageLayout(0)
+                loadImage(arg, imageLayout)
+                postDelayed({ insertEditText(0) }, 200)
+
+            }
+
+            INSERT_STATE_END -> {
+                val childCount = childCount
+                val imageLayout = insertImageLayout(childCount)
+                loadImage(arg, imageLayout)
+                postDelayed({ insertEditText(childCount + 1) }, 200)
+
+            }
+
+            INSERT_STATE_MIDDLE -> {
+            }
+        }
+    }
+
+    private fun insertEditText(childIndex: Int = 0) {
+        val firstEditText = EditText(context).apply {
+            setBackgroundResource(android.R.color.holo_green_light)
+            onFocusChangeListener = this@BaduEditor
+        }
+
+        val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            setMargins(margin, margin, margin, 0)
+        }
+
+        addView(firstEditText, childIndex, params)
+    }
+
+    fun insertImageLayout(childIndex: Int): ImageLayout {
+        val imageLayout = ImageLayout(context).apply {
+            onDeleteButtonClickListener = this@BaduEditor
+        }
+
+        val defaultWidth = width - 2 * margin
+        val defaultHeight = defaultWidth * 9 / 16
+
+        val params = LinearLayout.LayoutParams(defaultWidth, defaultHeight).apply {
+            setMargins(margin, margin, margin, 0)
+        }
+
+        this@BaduEditor.post {
+            addView(imageLayout, childIndex, params)
+        }
+
+        return imageLayout
+    }
+
+    fun loadImage(arg: Any, imageLayout: ImageLayout) {
         val requestBuilder =
                 Glide.with(this)
                         .asBitmap()
@@ -47,7 +146,51 @@ class BaduEditor @JvmOverloads constructor(
         when (arg) {
             is String -> requestBuilder.load(arg)
             is Uri -> requestBuilder.load(arg)
-            else -> throw RuntimeException("Not Valid param for image downloading")
+        }
+
+        requestBuilder
+                .listener(object : RequestListener<Bitmap> {
+
+                    override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        return false
+                    }
+
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                        return false
+                    }
+                })
+                .into(object : ViewTarget<ImageLayout, Bitmap>(imageLayout) {
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+
+                        val ratioWidth = width - 2 * margin
+                        val ratioHeight = ratioWidth * resource.height / resource.width
+
+                        this.view!!.layoutParams.run {
+                            this.width = ratioWidth
+                            this.height = ratioHeight
+                        }
+
+                        this.view.setImageBitmap(getRoundedBitmap(resource))
+                    }
+
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
+                        super.onLoadFailed(errorDrawable)
+
+                        val childView = this.view!!
+
+                        childView.setBackgroundResource(android.R.color.black)
+                    }
+                })
+    }
+
+    fun addImageOld(arg: Any, childIndex: Int) {
+        val requestBuilder =
+                Glide.with(this)
+                        .asBitmap()
+
+        when (arg) {
+            is String -> requestBuilder.load(arg)
+            is Uri -> requestBuilder.load(arg)
         }
 
         val imageLayout = ImageLayout(context).apply {
@@ -131,21 +274,6 @@ class BaduEditor @JvmOverloads constructor(
 
             return dstBitmap
         }
-    }
-
-    private fun setupInitEditText() {
-        val firstEditText = EditText(context).apply {
-            setBackgroundResource(android.R.color.holo_green_light)
-        }
-
-        val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            setMargins(margin, margin, margin, 0)
-        }
-
-        addView(firstEditText, 0, params)
     }
 
 }
