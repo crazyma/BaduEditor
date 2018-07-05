@@ -3,7 +3,6 @@ package com.badu.badueditor
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.AttributeSet
-import android.view.View
 import android.widget.FrameLayout
 import kotlinx.android.synthetic.main.layout_image_base.view.*
 
@@ -12,6 +11,12 @@ class ImageLayout @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
+
+    interface OnDeleteButtonClickListener{
+        fun onDeleteButtonClicked(imageLayout: ImageLayout, index: Int)
+    }
+
+    var onDeleteButtonClickListener: OnDeleteButtonClickListener? = null
 
     init {
         inflate(context, R.layout.layout_image_base, this)
@@ -23,7 +28,9 @@ class ImageLayout @JvmOverloads constructor(
     }
 
     private fun setupDeleteButton(){
-
+        deleteImageView.setOnClickListener {
+            onDeleteButtonClickListener?.onDeleteButtonClicked(this@ImageLayout, this@ImageLayout.id)
+        }
     }
 
     fun setImageBitmap(bitmap: Bitmap){

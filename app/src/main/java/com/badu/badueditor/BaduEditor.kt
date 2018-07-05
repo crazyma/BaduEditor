@@ -5,7 +5,6 @@ import android.graphics.*
 import android.net.Uri
 import android.util.AttributeSet
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.LinearLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -16,13 +15,14 @@ import com.bumptech.glide.request.target.ViewTarget
 import com.bumptech.glide.request.transition.Transition
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
+import kotlinx.android.synthetic.main.layout_content.view.*
 
 
 class BaduEditor @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+) : LinearLayout(context, attrs, defStyleAttr), ImageLayout.OnDeleteButtonClickListener {
 
     private val margin = resources.getDimensionPixelSize(R.dimen.margin_normal)
 
@@ -35,7 +35,11 @@ class BaduEditor @JvmOverloads constructor(
         setupInitEditText()
     }
 
-    fun addImage(arg: Any) {
+    override fun onDeleteButtonClicked(imageLayout: ImageLayout, index: Int) {
+        linearLayout.removeView(imageLayout)
+    }
+
+    fun addImage(arg: Any, childIndex: Int) {
         val requestBuilder =
                 Glide.with(this)
                         .asBitmap()
@@ -46,7 +50,10 @@ class BaduEditor @JvmOverloads constructor(
             else -> throw RuntimeException("Not Valid param for image downloading")
         }
 
-        val imageLayout = ImageLayout(context)
+        val imageLayout = ImageLayout(context).apply {
+            id = childIndex
+            onDeleteButtonClickListener = this@BaduEditor
+        }
 
         val defaultWidth = width - 2 * margin
         val defaultHeight = defaultWidth * 9 / 16
