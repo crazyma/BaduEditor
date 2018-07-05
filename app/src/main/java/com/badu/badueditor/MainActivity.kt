@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
 
         button2.setOnClickListener {
             linearLayout.addImageFromUrl("http://img3.wikia.nocookie.net/__cb20131025223058/fantendo/images/2/25/Mario_Artwork_-_Super_Mario_3D_World.png")
+            linearLayout.addImageFromUrl("https://www.cool3c.com/files/contentparty/abvjiRP.jpg")
+
         }
 
 

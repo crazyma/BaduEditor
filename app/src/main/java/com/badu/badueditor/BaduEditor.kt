@@ -6,14 +6,17 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.target.ViewTarget
 import com.bumptech.glide.request.transition.Transition
+import timber.log.Timber
 
 class BaduEditor @JvmOverloads constructor(
         context: Context,
@@ -48,7 +51,7 @@ class BaduEditor @JvmOverloads constructor(
             val scaledBitmap = Bitmap.createScaledBitmap(selectedBitmap, ratioWidth, ratioHeight, false)
             imageView.setImageBitmap(scaledBitmap)
 
-            Log.d("crazyma", "image width: $ratioWidth, image height: $ratioHeight")
+            Timber.d("image width: $ratioWidth, image height: $ratioHeight")
 
             val params = LinearLayout.LayoutParams(ratioWidth, ratioHeight).apply {
                 setMargins(margin, margin, margin, 0)
@@ -81,10 +84,19 @@ class BaduEditor @JvmOverloads constructor(
         Glide.with(this)
                 .asBitmap()
                 .load(imageUrl)
+                .listener(object : RequestListener<Bitmap> {
+
+                    override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        return false
+                    }
+
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                        Timber.e("listener onLoadFailed   " + e?.toString())
+                        return true
+                    }
+                })
                 .into(object : ViewTarget<ImageView, Bitmap>(imageView) {
                     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-
-                        Log.d("crazyma","!!width : ${resource.width}, height : ${resource.height}")
 
                         val ratioWidth = width - 2 * margin
                         val ratioHeight = ratioWidth * resource.height / resource.width
@@ -93,8 +105,6 @@ class BaduEditor @JvmOverloads constructor(
                             this.width = ratioWidth
                             this.height = ratioHeight
                         }
-
-
 
                         this.view.setImageBitmap(resource)
                     }
