@@ -6,12 +6,11 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.content.Intent
 import android.widget.Toast
-import android.graphics.BitmapFactory
 import android.graphics.Bitmap
-import android.R.attr.data
 import android.util.Log
-import android.widget.ImageView
-import android.widget.LinearLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_content.*
 
@@ -30,6 +29,21 @@ class MainActivity : AppCompatActivity() {
         button1.setOnClickListener {
             loadImageFromGallery()
         }
+
+        button2.setOnClickListener {
+            linearLayout.addImageFromUrl("http://img3.wikia.nocookie.net/__cb20131025223058/fantendo/images/2/25/Mario_Artwork_-_Super_Mario_3D_World.png")
+        }
+
+
+//        Glide.with(this)
+//                .asBitmap()
+//                .load("http://img3.wikia.nocookie.net/__cb20131025223058/fantendo/images/2/25/Mario_Artwork_-_Super_Mario_3D_World.png")
+//                .into(object: SimpleTarget<Bitmap>(){
+//                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+//                        Log.d("crazyma","width : ${resource.width}, ${resource.height}")
+//                    }
+//
+//                })
 
     }
 

@@ -10,6 +10,10 @@ import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.ViewTarget
+import com.bumptech.glide.request.transition.Transition
 
 class BaduEditor @JvmOverloads constructor(
         context: Context,
@@ -55,6 +59,47 @@ class BaduEditor @JvmOverloads constructor(
             }
 
         }).start()
+    }
+
+    fun addImageFromUrl(imageUrl: String) {
+
+        val imageView = ImageView(context).apply {
+            setBackgroundResource(android.R.color.holo_red_light)
+        }
+
+        val ratioWidth = width - 2 * margin
+        val ratioHeight = ratioWidth * 9 / 16
+
+        val params = LinearLayout.LayoutParams(ratioWidth, ratioHeight).apply {
+            setMargins(margin, margin, margin, 0)
+        }
+
+        this@BaduEditor.post {
+            addView(imageView, params)
+        }
+
+        Glide.with(this)
+                .asBitmap()
+                .load(imageUrl)
+                .into(object : ViewTarget<ImageView, Bitmap>(imageView) {
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+
+                        Log.d("crazyma","!!width : ${resource.width}, height : ${resource.height}")
+
+                        val ratioWidth = width - 2 * margin
+                        val ratioHeight = ratioWidth * resource.height / resource.width
+
+                        this.view!!.layoutParams.run {
+                            this.width = ratioWidth
+                            this.height = ratioHeight
+                        }
+
+
+
+                        this.view.setImageBitmap(resource)
+                    }
+                })
+
     }
 
     private fun setupInitEditText() {
