@@ -46,7 +46,7 @@ class BaduEditor @JvmOverloads constructor(
             else -> throw RuntimeException("Not Valid param for image downloading")
         }
 
-        val imageView = ImageView(context)
+        val imageLayout = ImageLayout(context)
 
         val defaultWidth = width - 2 * margin
         val defaultHeight = defaultWidth * 9 / 16
@@ -56,7 +56,7 @@ class BaduEditor @JvmOverloads constructor(
         }
 
         this@BaduEditor.post {
-            addView(imageView, params)
+            addView(imageLayout, params)
         }
 
         requestBuilder
@@ -70,7 +70,7 @@ class BaduEditor @JvmOverloads constructor(
                         return false
                     }
                 })
-                .into(object : ViewTarget<ImageView, Bitmap>(imageView) {
+                .into(object : ViewTarget<ImageLayout, Bitmap>(imageLayout) {
                     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
 
                         val ratioWidth = width - 2 * margin
