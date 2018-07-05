@@ -6,11 +6,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.content.Intent
 import android.widget.Toast
-import android.graphics.Bitmap
-import android.util.Log
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_content.*
 
@@ -31,21 +26,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         button2.setOnClickListener {
-            linearLayout.addImageFromUrl("http://img3.wikia.nocookie.net/__cb20131025223058/fantendo/images/2/25/Mario_Artwork_-_Super_Mario_3D_World.png")
-            linearLayout.addImageFromUrl("https://www.cool3c.com/files/contentparty/abvjiRP.jpg")
-
+            linearLayout.addImage("http://img3.wikia.nocookie.net/__cb20131025223058/fantendo/images/2/25/Mario_Artwork_-_Super_Mario_3D_World.png")
+            linearLayout.addImage("https://www.cool3c.com/files/contentparty/abvjiRP.jpg")
         }
-
-
-//        Glide.with(this)
-//                .asBitmap()
-//                .load("http://img3.wikia.nocookie.net/__cb20131025223058/fantendo/images/2/25/Mario_Artwork_-_Super_Mario_3D_World.png")
-//                .into(object: SimpleTarget<Bitmap>(){
-//                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-//                        Log.d("crazyma","width : ${resource.width}, ${resource.height}")
-//                    }
-//
-//                })
 
     }
 
@@ -55,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         if(resultCode == Activity.RESULT_OK){
             try {
 
-                linearLayout.addImageFromGalleryUri(data!!.data)
+                linearLayout.addImage(data!!.data)
 
             } catch (e: Exception) {
                 e.printStackTrace()
